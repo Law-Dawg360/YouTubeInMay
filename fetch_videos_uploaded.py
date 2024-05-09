@@ -6,7 +6,7 @@ import isodate
 import os
 import re  # For robust parsing of video IDs
 
-API_KEY = "AIzaSyDhLuQ_Fv16fh_cqyP6Lo1G5GjlGCTOuus"
+API_KEY = "Your API Key"
 
 # Function to fetch the video's duration
 def get_video_duration(youtube, video_id):
