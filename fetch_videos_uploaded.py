@@ -1,12 +1,13 @@
+import os
+import re
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from datetime import datetime
 import sqlite3
 import isodate
-import os
-import re  # For robust parsing of video IDs
 
-API_KEY = "Your API Key"
+# Retrieve API key from environment variable
+API_KEY = os.environ['API_KEY']
 
 # Function to fetch the video's duration
 def get_video_duration(youtube, video_id):
