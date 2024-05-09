@@ -16,22 +16,8 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<details open>
-
+<details>
+  <summary>Templates & Details</summary>
 
 
 
