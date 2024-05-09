@@ -3,6 +3,7 @@ name: Fetch YouTube Data
 on:
   schedule:
     - cron: '0 * * * *'  # Run every hour
+  workflow_dispatch:  # Manual trigger
 
 jobs:
   fetch_data:
