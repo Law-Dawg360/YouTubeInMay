@@ -1,6 +1,11 @@
 # [YouTube](Homepage)
 [Working Nighttabs](58)
 
+## channel_info.db
+[pages link](https://law-dawg360.github.io/YouTubeInMay/channel_info.db)    
+[raw text](https://github.com/Law-Dawg360/YouTubeInMay/blob/cce8489792aca3651e262f933c35862133b75ed2/channel_info.db)    
+[github link](https://github.com/Law-Dawg360/YouTubeInMay/blob/secWithSecretsRunsEveryHour/channel_info.db)  
+
 # Links to the Nighttab Editors
 
 - [link](Link)
