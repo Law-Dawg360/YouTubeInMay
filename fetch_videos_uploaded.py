@@ -1,58 +1,95 @@
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from datetime import datetime
 import sqlite3
+import isodate
+import os
+import re  # For robust parsing of video IDs
 
-# Function to fetch latest videos uploaded today for each channel
+API_KEY = "AIzaSyDhLuQ_Fv16fh_cqyP6Lo1G5GjlGCTOuus"
+
+# Function to fetch the video's duration
+def get_video_duration(youtube, video_id):
+    try:
+        video_response = youtube.videos().list(
+            part='contentDetails',
+            id=video_id
+        ).execute()
+
+        iso_duration = video_response['items'][0]['contentDetails']['duration']
+        duration = isodate.parse_duration(iso_duration)
+        return str(duration)
+    except HttpError:
+        return "Unknown duration"
+
+# Get the current date for file naming
+current_date_str = datetime.utcnow().strftime('%Y-%m-%d')
+output_folder = "output"
+os.makedirs(output_folder, exist_ok=True)
+
+file_name = f"{current_date_str}.txt"
+file_path = os.path.join(output_folder, file_name)
+
+# Read existing content to find unique identifiers (video IDs)
+existing_video_ids = set()
+if os.path.exists(file_path):
+    with open(file_path, "r") as existing_file:
+        for line in existing_file:
+            video_url_match = re.search(r"https://www\.youtube\.com/watch\?v=([^&\s]+)", line)
+            if video_url_match:  # If a video URL is found
+                video_id = video_url_match.group(1)
+                existing_video_ids.add(video_id)
+
+print("Existing video IDs:", existing_video_ids)  # Debugging information
+
+# Function to fetch the latest videos uploaded today for each channel
 def fetch_latest_videos():
     youtube = build('youtube', 'v3', developerKey=API_KEY)
 
-    # Get the current date in ISO 8601 format
     current_date = datetime.utcnow().strftime('%Y-%m-%dT00:00:00Z')
 
-    # Connect to the database
     conn = sqlite3.connect('channel_info.db')
     c = conn.cursor()
 
-    # Query channel IDs from the database
     c.execute("SELECT channel_id FROM channels")
     channel_ids = [row[0] for row in c.fetchall()]
 
-    for channel_id in channel_ids:
-        try:
-            # Get the uploads playlist ID for the channel
-            channel_info = youtube.channels().list(part='contentDetails,snippet', id=channel_id).execute()
-            uploads_playlist_id = channel_info['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+    with open(file_path, "a") as output_file:
+        for channel_id in channel_ids:
+            try:
+                channel_info = youtube.channels().list(part='contentDetails,snippet', id=channel_id).execute()
+                uploads_playlist_id = channel_info['items'][0]['contentDetails']['relatedPlaylists']['uploads']
 
-            # Get the latest videos from the uploads playlist
-            playlist_items = youtube.playlistItems().list(
-                part='snippet',
-                playlistId=uploads_playlist_id,
-                maxResults=10  # Adjust this number as needed
-            ).execute()
+                playlist_items = youtube.playlistItems().list(
+                    part='snippet',
+                    playlistId=uploads_playlist_id,
+                    maxResults=10
+                ).execute()
 
-            # Process each video in the playlist
-            for item in playlist_items['items']:
-                video_published_at = item['snippet']['publishedAt']
-                
-                # Check if the video was published today
-                if video_published_at >= current_date:
-                    video_id = item['snippet']['resourceId']['videoId']
-                    video_title = item['snippet']['title']
-                    video_url = f"https://www.youtube.com/watch?v={video_id}"
-                    video_thumbnail = item['snippet']['thumbnails']['default']['url']
-                    video_duration = get_video_duration(youtube, video_id)
+                for item in playlist_items['items']:
+                    video_published_at = item['snippet']['publishedAt']
+                    
+                    if video_published_at >= current_date:
+                        video_id = item['snippet']['resourceId']['videoId']
+                        print("Processing video ID:", video_id)  # Debugging info
+                        if video_id not in existing_video_ids:
+                            video_title = item['snippet']['title']
+                            video_url = f"https://www.youtube.com/watch?v={video_id}"
+                            video_thumbnail = item['snippet']['thumbnails']['default']['url'
+                            video_duration = get_video_duration(youtube, video_id)
 
-                    # Print or store the information as needed
-                    print("Uploader:", channel_info['items'][0]['snippet']['title'])
-                    print("Video URL:", video_url)
-                    print("Title:", video_title)
-                    print("Thumbnail:", video_thumbnail)
-                    print("Published At:", video_published_at)
-                    print("Duration:", video_duration)
-                    print("\n")
-        except KeyError:
-            print(f"Unable to fetch information for channel with ID {channel_id}")
+                            # Write the information to the file
+                            output_file.write(f"Uploader: {channel_info['items'][0]['snippet']['title']}\n")
+                            output_file.write(f"Video URL: {video_url}\n")
+                            output_file.write(f"Title: {video_title}\n")
+                            output_file.write(f"Thumbnail: {video_thumbnail}\n")
+                            output_file.write(f"Published At: {video_published_at}\n")
+                            output_file.write(f"Duration: {video_duration}\n")
+                            output_file.write("\n")
+                            existing_video_ids.add(video_id)  # Add to existing video IDs set
+            except KeyError:
+                print(f"Unable to fetch information for channel with ID {channel_id}")
 
-    # Close the database connection
     conn.close()
 
-# Call the function to fetch latest videos uploaded on the current day
 fetch_latest_videos()
