@@ -47,7 +47,7 @@ print("Existing video IDs:", existing_video_ids)  # Debugging information
 def fetch_latest_videos():
     youtube = build('youtube', 'v3', developerKey=API_KEY)
 
-    current_date = datetime.utcnow().strftime('%Y-%m-%dT00:00:00Z')
+    current_date = datetime.utcnow()
 
     conn = sqlite3.connect('channel_info.db')
     c = conn.cursor()
@@ -68,15 +68,15 @@ def fetch_latest_videos():
                 ).execute()
 
                 for item in playlist_items['items']:
-                    video_published_at = item['snippet']['publishedAt']
+                    video_published_at = datetime.fromisoformat(item['snippet']['publishedAt'][:-1])  # Convert to datetime
                     
-                    if video_published_at >= current_date:
+                    if video_published_at.date() == current_date.date():  # Compare dates only
                         video_id = item['snippet']['resourceId']['videoId']
                         print("Processing video ID:", video_id)  # Debugging info
                         if video_id not in existing_video_ids:
                             video_title = item['snippet']['title']
                             video_url = f"https://www.youtube.com/watch?v={video_id}"
-                            video_thumbnail = item['snippet']['thumbnails']['default']['url'
+                            video_thumbnail = item['snippet']['thumbnails']['default']['url']
                             video_duration = get_video_duration(youtube, video_id)
 
                             # Write the information to the file
