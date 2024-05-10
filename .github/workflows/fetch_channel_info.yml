@@ -1,4 +1,4 @@
-name: Get and
+name: Get and Store Channel Info
 
 on:
   push:
