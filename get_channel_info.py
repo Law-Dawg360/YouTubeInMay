@@ -1,5 +1,4 @@
 import os
-import sqlite3
 
 # Retrieve API key from environment variable
 API_KEY = os.environ['API_KEY']
