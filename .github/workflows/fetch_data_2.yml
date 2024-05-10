@@ -1,4 +1,4 @@
-name: Fetch YouTube Data
+name: Fetch YouTube Data 2
 
 on:
   workflow_dispatch:  # Manual trigger
