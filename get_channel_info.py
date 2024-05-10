@@ -1,4 +1,5 @@
 import os
+import sqlite3
 from googleapiclient.discovery import build  # Add this import statement
 
 # Retrieve API key from environment variable
