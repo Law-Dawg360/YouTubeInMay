@@ -1,37 +1,25 @@
 import os
-from googleapiclient.discovery import build  # Add this import statement
-
-try:
-    import sqlite3
-    SQLITE_AVAILABLE = True
-except ImportError:
-    SQLITE_AVAILABLE = False
+import sqlite3
 
 # Retrieve API key from environment variable
 API_KEY = os.environ['API_KEY']
 
 # Function to create database table
 def create_table():
-    if SQLITE_AVAILABLE:
-        conn = sqlite3.connect('channel_info.db')
-        c = conn.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS channels
-                     (channel_id TEXT PRIMARY KEY, channel_name TEXT, profile_picture TEXT, subscriber_count INTEGER)''')
-        conn.commit()
-        conn.close()
-    else:
-        print("SQLite3 module is not available. Cannot create table.")
+    conn = sqlite3.connect('channel_info.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS channels
+                 (channel_id TEXT PRIMARY KEY, channel_name TEXT, profile_picture TEXT, subscriber_count INTEGER)''')
+    conn.commit()
+    conn.close()
 
 # Function to insert channel information into the database
 def insert_channel_info(channel_info):
-    if SQLITE_AVAILABLE:
-        conn = sqlite3.connect('channel_info.db')
-        c = conn.cursor()
-        c.execute("INSERT OR REPLACE INTO channels VALUES (?, ?, ?, ?)", channel_info)
-        conn.commit()
-        conn.close()
-    else:
-        print("SQLite3 module is not available. Cannot insert data.")
+    conn = sqlite3.connect('channel_info.db')
+    c = conn.cursor()
+    c.execute("INSERT OR REPLACE INTO channels VALUES (?, ?, ?, ?)", channel_info)
+    conn.commit()
+    conn.close()
 
 # Function to read channel IDs from file
 def read_channel_ids(filename):
