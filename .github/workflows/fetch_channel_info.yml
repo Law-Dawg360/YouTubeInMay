@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r .github/dependencies/fetch_channel_info.txt
         
     - name: Execute Python script
       run: python get_channel_info.py
