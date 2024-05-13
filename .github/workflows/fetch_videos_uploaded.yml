@@ -23,7 +23,6 @@ jobs:
         pip install --upgrade pip
         pip install -r .github/dependencies/fetch_videos_uploaded.txt
     - name: Create database table
-      run: python -c "from fetch_videos_uploaded import create_table; create_table()"
 
     - name: Execute Python script
       run: python fetch_videos_uploaded.py
