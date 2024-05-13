@@ -2,7 +2,7 @@ import os
 import re
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from datetime import datetime
+from datetime import datetime, timezone
 import sqlite3
 import isodate
 
@@ -24,7 +24,8 @@ def get_video_duration(youtube, video_id):
         return "Unknown duration"
 
 # Get the current date for file naming
-current_date_str = datetime.utcnow().strftime('%Y-%m-%d')
+current_date_utc = datetime.now(timezone.utc)
+current_date_str = current_date_utc.strftime('%Y-%m-%d')
 output_folder = "output"
 os.makedirs(output_folder, exist_ok=True)
 
@@ -47,8 +48,6 @@ print("Existing video IDs:", existing_video_ids)  # Debugging information
 def fetch_latest_videos():
     youtube = build('youtube', 'v3', developerKey=API_KEY)
 
-    current_date = datetime.utcnow()
-
     conn = sqlite3.connect('channel_info.db')
     c = conn.cursor()
 
@@ -68,9 +67,8 @@ def fetch_latest_videos():
                 ).execute()
 
                 for item in playlist_items['items']:
-                    video_published_at = datetime.fromisoformat(item['snippet']['publishedAt'][:-1])  # Convert to datetime
-                    
-                    if video_published_at.date() == current_date.date():  # Compare dates only
+                    video_published_at = datetime.fromisoformat(item['snippet']['publishedAt'][:-1]).replace(tzinfo=timezone.utc)  # Convert to datetime
+                    if video_published_at.date() == current_date_utc.date():  # Compare dates only
                         video_id = item['snippet']['resourceId']['videoId']
                         print("Processing video ID:", video_id)  # Debugging info
                         if video_id not in existing_video_ids:
