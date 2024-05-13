@@ -57,14 +57,14 @@ def fetch_latest_videos():
     with open(file_path, "a") as output_file:
         for channel_id in channel_ids:
             try:
-                channel_info = youtube.channels().list(part='contentDetails,snippet', id=channel_id).execute()
-                uploads_playlist_id = channel_info['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+                # channel_info = youtube.channels().list(part='contentDetails,snippet', id=channel_id).execute()
+                # uploads_playlist_id = channel_info['items'][0]['contentDetails']['relatedPlaylists']['uploads']
 
-                playlist_items = youtube.playlistItems().list(
-                    part='snippet',
-                    playlistId=uploads_playlist_id,
-                    maxResults=10
-                ).execute()
+                # playlist_items = youtube.playlistItems().list(
+                #    part='snippet',
+                #    playlistId=uploads_playlist_id,
+                #     maxResults=10
+                # ).execute()
 
                 for item in playlist_items['items']:
                     video_published_at = datetime.fromisoformat(item['snippet']['publishedAt'][:-1]).replace(tzinfo=timezone.utc)  # Convert to datetime
