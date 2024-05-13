@@ -7,7 +7,7 @@ on:
   workflow_dispatch:  # Manual trigger
 
 jobs:
-  fetch-videos:
+  build:
     runs-on: ubuntu-latest
     
     steps:
