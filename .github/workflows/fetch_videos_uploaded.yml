@@ -28,6 +28,6 @@ jobs:
       run: python -c "from fetch_videos_uploaded import create_table; create_table()"
 
     - name: Execute Python script
+      run: python -C fetch_videos_uploaded.py
       env:
         API_KEY: ${{ secrets.API_KEY }}
-      run: python fetch_videos_uploaded.py
