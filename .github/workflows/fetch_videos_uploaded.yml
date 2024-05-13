@@ -26,6 +26,8 @@ jobs:
 
     - name: Create database table
       run: python -c "from get_channel_info import create_table; create_table()"
+      env:
+        API_KEY: ${{ secrets.API_KEY }} # API_KEY: ${{ secrets.REPO_SECRET }} # API_KEY: ${{ secrets.API_KEY }}
 
     - name: Execute Python script
       run: python fetch_videos_uploaded.py
